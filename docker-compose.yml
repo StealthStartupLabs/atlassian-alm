@@ -1,0 +1,57 @@
+apache:
+  build: ./apache
+  links:
+    - bamboo
+    - bitbucket
+    - jira
+  ports:
+    - "80:80"
+
+
+busybox:
+  image: busybox
+  volumes:
+    - /opt/atlassian-home
+    - /var/lib/postgresql/data
+  command: echo data container
+
+
+postgres:
+  build: ./postgres
+  ports:
+    - '5432:5432'
+  volumes_from:
+    - busybox
+
+
+jira:
+  build: ./jira
+  links:
+    - bamboo
+    - bitbucket
+    - postgres
+  ports:
+    - "8080:8080"
+  volumes_from:
+    - busybox
+
+
+bamboo:
+  build: ./bamboo
+  links:
+    - bitbucket
+    - postgres
+  ports:
+    - "8085:8085"
+  volumes_from:
+    - busybox
+
+
+bitbucket:
+  build: ./bitbucket
+  links:
+    - postgres
+  ports:
+    - "7990:7990"
+  volumes_from:
+    - busybox
